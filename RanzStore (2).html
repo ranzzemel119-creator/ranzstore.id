@@ -1,0 +1,200 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>RanzStore</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: etalase vertikal di HP, grid 2-3 kolom di layar lebar. Filter game di atas, tombol beli membuka WhatsApp. */
+:root{
+  --bg:#EDF0F4; --surface:#FFFFFF; --fg:#141B2D; --muted:#566074; --line:#D5DAE3;
+  --accent:#C74A0B; --accent-fg:#FFFFFF; --ok:#17794A; --ok-bg:#DDF1E6; --sold:#8A93A5; --sold-bg:#E4E8EE;
+  --f-display:"Bricolage Grotesque","Trebuchet MS",sans-serif;
+  --f-body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10141F; --surface:#181E2C; --fg:#EAEEF6; --muted:#9AA4B8; --line:#2A3347;
+  --accent:#FF7A33; --accent-fg:#10141F; --ok:#6FD3A0; --ok-bg:#16332A; --sold:#7C869A; --sold-bg:#222A3B; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141F; --surface:#181E2C; --fg:#EAEEF6; --muted:#9AA4B8; --line:#2A3347;
+  --accent:#FF7A33; --accent-fg:#10141F; --ok:#6FD3A0; --ok-bg:#16332A; --sold:#7C869A; --sold-bg:#222A3B; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
+.wrap{max-width:1040px;margin:0 auto}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+header.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 0;border-bottom:1px solid var(--line)}
+.brand{font-family:var(--f-display);font-weight:800;font-size:1.25rem;letter-spacing:-.01em}
+.brand span{color:var(--accent)}
+.top a.wa{font-size:.9rem;font-weight:600;text-decoration:none;border:1px solid var(--line);padding:8px 14px;border-radius:6px;background:var(--surface)}
+.hero{padding:36px 0 24px;display:grid;gap:12px}
+.hero h1{font-family:var(--f-display);font-weight:800;font-size:clamp(2rem,7vw,3.4rem);line-height:1.02;letter-spacing:-.025em;margin:0;max-width:16ch;text-wrap:balance}
+.hero p{margin:0;max-width:52ch;color:var(--muted);font-size:1.05rem}
+.assure{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:6px;padding:0;list-style:none;font-size:.9rem;font-weight:500}
+.assure li::before{content:"";display:inline-block;width:8px;height:8px;background:var(--accent);margin-right:8px;transform:translateY(-1px)}
+.tools{display:grid;gap:12px;padding:16px 0;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+input[type=search],select{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 12px;min-width:0}
+input[type=search]{flex:1 1 200px}
+select{flex:0 1 190px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.chip{font:inherit;font-weight:500;font-size:.9rem;white-space:nowrap;cursor:pointer;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.count{font-size:.85rem;color:var(--muted);margin:16px 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.card.sold{opacity:.72}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:var(--f-mono);font-size:.75rem;color:var(--muted)}
+.game{font-family:var(--f-body);font-weight:600;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.card h3{font-family:var(--f-display);font-weight:600;font-size:1.25rem;line-height:1.2;margin:0;text-wrap:balance}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.92rem}
+dt{color:var(--muted)} dd{margin:0;text-align:right;font-weight:500;min-width:0;overflow-wrap:anywhere}
+.badge{font-family:var(--f-body);font-weight:600;font-size:.72rem;padding:3px 9px;border-radius:999px;background:var(--ok-bg);color:var(--ok)}
+.badge.sold{background:var(--sold-bg);color:var(--sold)}
+.buy{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:14px;border-top:1px dashed var(--line);flex-wrap:wrap}
+.price{font-family:var(--f-mono);font-weight:500;font-size:1.15rem;font-variant-numeric:tabular-nums}
+.btn{font:inherit;font-weight:600;text-decoration:none;background:var(--accent);color:var(--accent-fg);padding:10px 18px;border-radius:6px;border:0;cursor:pointer}
+.btn[aria-disabled="true"]{background:var(--sold-bg);color:var(--sold);pointer-events:none}
+.empty{padding:40px 0;color:var(--muted)}
+section.info{margin-top:48px;display:grid;gap:28px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+section.info h2{font-family:var(--f-display);font-weight:800;font-size:1.5rem;letter-spacing:-.015em;margin:0 0 14px}
+ol.steps{margin:0;padding:0;list-style:none;display:grid;gap:14px;counter-reset:s}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:2rem 1fr;gap:10px}
+ol.steps li::before{content:counter(s);font-family:var(--f-mono);font-weight:500;color:var(--accent-fg);background:var(--accent);width:2rem;height:2rem;display:grid;place-items:center;border-radius:6px}
+ol.steps b{display:block}
+ol.steps span{color:var(--muted);font-size:.92rem}
+details{border-top:1px solid var(--line);padding:12px 0}
+details:last-of-type{border-bottom:1px solid var(--line)}
+summary{cursor:pointer;font-weight:600}
+details p{margin:8px 0 0;color:var(--muted);font-size:.95rem}
+footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:.82rem;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.card{transition:transform .15s}.card:not(.sold):hover{transform:translateY(-2px)}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Ranz<span>Store</span></div>
+    <a class="wa" id="waTop" href="#" target="_blank" rel="noopener">Chat WhatsApp</a>
+  </header>
+
+  <section class="hero">
+    <h1>Akun game siap main, dicek dulu sebelum dibayar.</h1>
+    <p>Pilih akun, tekan beli, dan detail akun langsung terkirim ke WhatsApp penjual. Tanpa registrasi.</p>
+    <ul class="assure">
+      <li>Data akun difoto lengkap</li>
+      <li>Garansi 3 hari</li>
+    </ul>
+  </section>
+
+  <div class="tools">
+    <div class="row">
+      <input type="search" id="q" placeholder="Cari rank, skin, atau ID akun" aria-label="Cari akun">
+      <select id="sort" aria-label="Urutkan">
+        <option value="new">Terbaru</option>
+        <option value="low">Harga terendah</option>
+        <option value="high">Harga tertinggi</option>
+      </select>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Filter game"></div>
+  </div>
+
+  <p class="count" id="count" aria-live="polite"></p>
+  <div class="grid" id="grid"></div>
+
+  <section class="info">
+    <div>
+      <h2>Cara beli</h2>
+      <ol class="steps">
+        <li><div><b>Pilih akun</b><span>Tekan Beli di kartu akun yang kamu mau.</span></div></li>
+        <li><div><b>Konfirmasi di WhatsApp</b><span>Penjual kirim bukti login, screenshot inventori, dan cek ketersediaan.</span></div></li>
+        <li><div><b>Bayar</b><span>Lakukan pembayaran sesuai instruksi penjual di chat.</span></div></li>
+        <li><div><b>Ganti data login</b><span>Ganti email, nomor, dan password. Setelah itu akun sepenuhnya milikmu.</span></div></li>
+      </ol>
+    </div>
+    <div>
+      <h2>Pertanyaan umum</h2>
+      <details><summary>Apakah ada risiko akun kena banned?</summary><p>Akun dijual dari pemilik asli dan tidak memakai cheat. Meski begitu, jual-beli akun bisa melanggar aturan sebagian publisher game, jadi baca ketentuan game yang kamu pilih.</p></details>
+      <details><summary>Bagaimana kalau akun bermasalah?</summary><p>Hubungi kami dalam 3 hari setelah serah terima. Kalau masalahnya ada di akun (bukan karena pembeli), akun diganti atau uang dikembalikan.</p></details>
+      <details><summary>Metode pembayaran apa saja?</summary><p>Transfer bank dan e-wallet.</p></details>
+      <details><summary>Boleh nego harga?</summary><p>Boleh, langsung sampaikan lewat WhatsApp setelah menekan Beli.</p></details>
+    </div>
+  </section>
+
+  <footer>RanzStore. Pesan lewat WhatsApp, stok terbatas.</footer>
+</div>
+
+<script>
+/* Ubah dua baris ini: nomor WhatsApp (format 62..., tanpa +) dan nama toko di pesan. */
+var WA_NUMBER = "6285850623766";
+var SHOP = "RanzStore";
+
+var ACCOUNTS = [
+  {id:"ML-001", game:"Mobile Legends", title:"Akun Advance Server, Level 3", level:"Level 3", extra:"Advance Server, 2 cabang", price:6000, sold:false, n:1},
+  {id:"ML-002", game:"Mobile Legends", title:"Akun Advance Server, Level 3", level:"Level 3", extra:"Advance Server, 2 cabang", price:6000, sold:false, n:2},
+  {id:"ML-003", game:"Mobile Legends", title:"Akun Advance Server, Level 3", level:"Level 3", extra:"Advance Server, 2 cabang", price:6000, sold:false, n:3},
+  {id:"ML-004", game:"Mobile Legends", title:"Akun Advance Server, Level 3", level:"Level 3", extra:"Advance Server, 2 cabang", price:6000, sold:false, n:4},
+  {id:"ML-005", game:"Mobile Legends", title:"Akun Advance Server, Level 3", level:"Level 3", extra:"Advance Server, 2 cabang", price:6000, sold:false, n:5},
+  {id:"ML-006", game:"Mobile Legends", title:"Akun Advance Server, Level 3", level:"Level 3", extra:"Advance Server, 2 cabang", price:6000, sold:false, n:6},
+  {id:"ML-007", game:"Mobile Legends", title:"Akun Advance Server, Level 3", level:"Level 3", extra:"Advance Server, 2 cabang", price:6000, sold:false, n:7},
+  {id:"ML-008", game:"Mobile Legends", title:"Akun Advance Server, Level 3", level:"Level 3", extra:"Advance Server, 2 cabang", price:6000, sold:false, n:8},
+  {id:"ML-009", game:"Mobile Legends", title:"Akun Advance Server, Level 3", level:"Level 3", extra:"Advance Server, 2 cabang", price:6000, sold:false, n:9},
+  {id:"ML-010", game:"Mobile Legends", title:"Akun Advance Server, Level 3", level:"Level 3", extra:"Advance Server, 2 cabang", price:6000, sold:false, n:10}
+];
+
+var rp = new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0});
+var state = {game:"Semua", q:"", sort:"new"};
+var $ = function(id){return document.getElementById(id)};
+
+function waLink(text){return "https://wa.me/"+WA_NUMBER+(text?"?text="+encodeURIComponent(text):"")}
+$("waTop").href = waLink("Halo "+SHOP+", saya mau tanya soal akun game.");
+
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+
+function buildChips(){
+  var games = ["Semua"].concat(Array.from(new Set(ACCOUNTS.map(function(a){return a.game}))));
+  $("chips").hidden = games.length<3;
+  $("chips").innerHTML = games.map(function(g){
+    return '<button class="chip" type="button" data-g="'+esc(g)+'" aria-pressed="'+(g===state.game)+'">'+esc(g)+'</button>';
+  }).join("");
+}
+
+function render(){
+  var q = state.q.trim().toLowerCase();
+  var list = ACCOUNTS.filter(function(a){
+    if(state.game!=="Semua" && a.game!==state.game) return false;
+    if(!q) return true;
+    return [a.id,a.game,a.title,a.level,a.extra].join(" ").toLowerCase().indexOf(q)>-1;
+  });
+  list.sort(function(a,b){
+    if(state.sort==="low") return a.price-b.price;
+    if(state.sort==="high") return b.price-a.price;
+    return b.n-a.n;
+  });
+  var avail = list.filter(function(a){return !a.sold}).length;
+  $("count").textContent = list.length+" akun ditampilkan, "+avail+" tersedia";
+  if(!list.length){ $("grid").innerHTML='<p class="empty">Tidak ada akun yang cocok. Coba kata kunci lain atau pilih Semua.</p>'; return; }
+  $("grid").innerHTML = list.map(function(a){
+    var msg = "Halo "+SHOP+", saya tertarik dengan akun "+a.id+" ("+a.game+": "+a.title+") seharga "+rp.format(a.price)+". Apakah masih tersedia?";
+    var btn = a.sold
+      ? '<a class="btn" aria-disabled="true" role="link" tabindex="-1">Terjual</a>'
+      : '<a class="btn" href="'+waLink(msg)+'" target="_blank" rel="noopener">Beli via WhatsApp</a>';
+    return '<article class="card'+(a.sold?' sold':'')+'">'+
+      '<div class="meta"><span class="game">'+esc(a.game)+'</span><span>'+esc(a.id)+'</span></div>'+
+      '<h3>'+esc(a.title)+'</h3>'+
+      '<dl><dt>Level</dt><dd>'+esc(a.level)+'</dd><dt>Isi akun</dt><dd>'+esc(a.extra)+'</dd></dl>'+
+      '<div class="buy"><div><div class="price">'+rp.format(a.price)+'</div><span class="badge'+(a.sold?' sold':'')+'">'+(a.sold?'Terjual':'Tersedia')+'</span></div>'+btn+'</div>'+
+      '</article>';
+  }).join("");
+}
+
+$("chips").addEventListener("click",function(e){
+  var b = e.target.closest(".chip"); if(!b) return;
+  state.game = b.getAttribute("data-g"); buildChips(); render();
+});
+$("q").addEventListener("input",function(e){state.q=e.target.value; render()});
+$("sort").addEventListener("change",function(e){state.sort=e.target.value; render()});
+buildChips(); render();
+</script>
+
+</body></html>
